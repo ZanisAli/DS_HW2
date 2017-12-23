@@ -81,6 +81,15 @@ class Board(Frame):
         self.wait_window(d.top)
         self.player_name = d.getString()
 
+def get_name2(self):
+        """
+        show dialog for nickname
+        """
+        d = NickName(self.parent)
+        self.wait_window(d.top)
+        self.player_name = d.getString()
+
+
     def get_server(self):
         """
         shaow dialog for server select

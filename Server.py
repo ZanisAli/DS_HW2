@@ -174,6 +174,20 @@ class SudokuServer():
             s.sendto(j,('255.255.255.255',12345))
             time.sleep(3)
 
+
+def broadcast2(self):
+        """
+        Broadcast given IP address
+        """
+        while True:
+            s=socket(AF_INET, SOCK_DGRAM)
+            s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
+            j = json.dumps({"server_ip" : self.ip})
+            s.sendto(j,('255.255.255.255',12345))
+            time.sleep(3)
+
+
+
     def get_ip_address(self):
         """
         get server IP
