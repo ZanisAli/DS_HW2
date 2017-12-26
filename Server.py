@@ -62,6 +62,7 @@ class SudokuServer():
     def on_request(self, ch, method, props, body):
 
         data = json.loads(body)
+        # get function name anf call this function with given params
         result = getattr(self, data["func"])( data["parms"])
 
         response = {"result" : result}
@@ -73,40 +74,9 @@ class SudokuServer():
                          body=json.dumps(response))
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
-    def get_sessions(self, parms):
 
-        return self.sessions.keys()
 
-    def create_session(self, parms):
 
-        player = parms
-        self.session_max +=1
-        sn = "Session" + str(self.session_max)
-
-        self.sessions[sn] = Session()
-        session = self.sessions[sn]
-
-        session.new_player(player)
-
-        return sn, session.visible_numbers[player], session.scores
-
-    def connect_session(self, parms):
-
-        sn, player = parms
-        session = self.sessions[sn]
-        session.new_player(player)
-        return sn, session.visible_numbers[player], session.scores
-
-    def turn(self, parms):
-
-        sn, player, x, y, n = parms
-        session = self.sessions[sn]
-        session.scores[player] -=1
-        if session.numbers[y + cells * x] == int(n):
-            session.visible_numbers[player][y + cells * x] = int(n)
-            session.scores[player] += 2
-
-        return sn, session.visible_numbers[player], session.scores
 
 
     def broadcast(self):

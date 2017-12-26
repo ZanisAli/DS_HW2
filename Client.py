@@ -1,7 +1,12 @@
 from Tkinter import *
 import random
+import pika
+import uuid
+import json
 
-
+from NickName import NickName
+from SelectServerDialog import SelectServerDialog
+from SelectSessionDialog import SelectSessionDialog
 
 offset = 20
 cell_size = 50
@@ -36,9 +41,6 @@ class Board(Frame):
             return
 
 
-        self.connect()
-        self.sessions = self.remote_get_sessions()
-        self.select_session()
 
         if not self.session:
             self.session, numbers, self.score = self.remote_create_session(self.player_name)
@@ -47,15 +49,6 @@ class Board(Frame):
 
         self.redraw(numbers)
 
-    def connect(self):
-
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=self.host))
-        self.channel = self.connection.channel()
-
-        result = self.channel.queue_declare(exclusive=True)
-        self.callback_queue = result.method.queue
-        self.channel.basic_consume(self.on_response, no_ack=True,
-                                   queue=self.callback_queue)
 
     def on_response(self, ch, method, props, body):
 
@@ -94,8 +87,6 @@ class Board(Frame):
             self.connection.process_data_events()
         return json.loads(self.response)["result"]
 
-
-    def get_name(self):
 
         d = NickName(self.parent)
         self.wait_window(d.top)
@@ -161,30 +152,7 @@ class Board(Frame):
                 self.remote_turn(self.session, self.player_name, self.col, self.row, int(event.char))
             self.redraw(numbers)
 
-    def redraw (self, numbers):
 
-        self.canvas.delete("score")
-        self.canvas.create_text(self.size+20, offset, text="Score", tags="score", anchor='w', fill="black")
-
-        s = sorted(self.score.items(), key=lambda x: -x[1])
-
-        for n, (name, score) in enumerate(s):
-            text = "{}: {}".format(name, score)
-            color = "blue" if name == self.player_name else "black"
-            self.canvas.create_text(self.size + 20, offset + (n +1) * 20, text=text, tags="score", anchor='w', fill=color)
-
-        self.canvas.delete("numbers")
-
-        numbers = list(numbers)
-
-        for i in xrange(cells):
-            for j in xrange(cells):
-                x = offset + i * cell_size + cell_size / 2
-                y = offset + j * cell_size + cell_size / 2
-
-                text = numbers.pop(0)
-                if text >0:
-                    self.canvas.create_text(x, y, text=text, tags="numbers", fill="black")
 
 if __name__ == '__main__':
         root = Tk()
