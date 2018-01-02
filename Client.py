@@ -70,7 +70,34 @@ class Board(Frame):
         self.callback_queue = result.method.queue
         self.channel.basic_consume(self.on_response, no_ack=True,
                                    queue=self.callback_queue)
-            
+
+    def on_response(self, ch, method, props, body):
+        """
+        callback function for server responses
+        :param ch: not used
+        :param method: not used
+        :param props: not used
+        :param body: json string with server answer
+        """
+        if self.corr_id == props.correlation_id:
+            self.response = body
+
+    def remote_get_sessions(self):
+        """
+        get sessions list from server
+        :return: server answer
+        """
+        return self.call({"func": "get_sessions", "parms" : () })
+
+    def remote_connect_session(self, session, player):
+        """
+
+        :param session:
+        :param player:
+        :return:
+        """
+        return self.call({"func": "connect_session", "parms" : (session,player) })
+
     def call(self, data):
         """
         convert parameters to json string
@@ -110,7 +137,15 @@ class Board(Frame):
         self.wait_window(d.top)
         self.host = d.result
 
-    
+    def select_session(self):
+        """
+        show dialog for session select
+        """
+        d = SelectSessionDialog(self.parent, self.sessions)
+        self.wait_window(d.top)
+        if not d.result is None:
+            self.session = self.sessions[d.result]
+
     def draw_grid(self):
          for i in xrange(10):
             width = 3 if i % 3 == 0 else 1
