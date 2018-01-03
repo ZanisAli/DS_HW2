@@ -51,6 +51,10 @@ class SelectSessionDialog(Toplevel):
 
         self.parent.after(200, self.poll)
 
+    def select(self):
+        cs = self.L.curselection()
+        self.result = cs[0]
+        self.top.destroy()
 
     def new(self):
         self.top.destroy()

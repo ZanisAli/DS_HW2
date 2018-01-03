@@ -69,6 +69,26 @@ class SelectServerDialog(Toplevel):
         self.L.delete(0, END)
         for i in  sorted(self.servers.keys()):
             self.L.insert(Tkinter.END, i)
+
+    def connect(self):
+        cs = self.L.curselection()
+        if len (cs) > 0:
+            self.result= sorted(self.servers.keys())[cs[0]]
+        self.top.destroy()
+
+    def cancel(self):
+        self.top.destroy()
+
+    def center(self):
+        self.top.update_idletasks()
+        w = self.top.winfo_screenwidth()
+        h = self.top.winfo_screenheight()
+        size = tuple(int(_) for _ in self.top.geometry().split('+')[0].split('x'))
+        x = w/2 - size[0]/2
+        y = h/2 - size[1]/2
+        self.top.geometry("%dx%d+%d+%d" % (size + (x, y)))
+        self.top.lift()
+
 if __name__ == '__main__':
         root = Tk()
         d = SelectServerDialog(root)

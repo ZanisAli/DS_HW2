@@ -98,6 +98,27 @@ class Board(Frame):
         """
         return self.call({"func": "connect_session", "parms" : (session,player) })
 
+    def remote_create_session(self, player):
+        """
+        creates new session on server
+        :param player: nickname
+        :return: game status
+        """
+        return self.call({"func": "create_session", "parms" : (player) })
+
+    def remote_turn(self, session, player, x, y, n):
+        """
+        Make turn
+        :param session: name
+        :param player: name
+        :param x: row
+        :param y: column
+        :param n: number to put on board
+        :return: game status
+        """
+        return self.call({"func": "turn", "parms" : (session, player, x, y, n) })
+
+
     def call(self, data):
         """
         convert parameters to json string

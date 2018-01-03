@@ -56,7 +56,22 @@ class Session():
 
 class SudokuServer():
 
-        def create_queue(self):
+    def __init__(self):
+        """
+        Sudoku server class
+        """
+        # get server IP
+        self.get_ip_address()
+        self.sessions = {}
+        self.session_max = 0
+        # create RabbitMQ queue
+        self.create_queue()
+        # separated thread for server IP broadcasting
+        thread = threading.Thread(target=self.broadcast, args=())
+        thread.daemon = True
+        thread.start()
+
+    def create_queue(self):
         """
         One queue for all client requests
         """
@@ -111,6 +126,39 @@ class SudokuServer():
         session = self.sessions[sn]
 
         session.new_player(player)
+
+        return sn, session.visible_numbers[player], session.scores
+
+    def connect_session(self, parms):
+        """
+        add player to existing session
+        :param parms:
+        :return:
+        """
+        sn, player = parms
+        session = self.sessions[sn]
+        session.new_player(player)
+        return sn, session.visible_numbers[player], session.scores
+
+    def turn_old(self, parms):
+        """
+        check turn is correct
+        if yes change game status an increment player scores
+        if no left cell blank and dectement scores
+        :param parms:
+            :param session: name
+            :param player: name
+            :param x: row
+            :param y: column
+            :param n: number to put on board
+        :return:
+        """
+        sn, player, x, y, n = parms
+        session = self.sessions[sn]
+        session.scores[player] -=1
+        if session.numbers[y + cells * x] == int(n):
+            session.visible_numbers[player][y + cells * x] = int(n)
+            session.scores[player] += 2
 
         return sn, session.visible_numbers[player], session.scores
 
